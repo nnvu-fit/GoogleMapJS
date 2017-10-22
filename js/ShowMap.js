@@ -1,41 +1,41 @@
       var map;
+      var marker;
 
       function initMap() {
           map = new google.maps.Map(document.getElementById('map'), {
               center: { lat: -34.397, lng: 150.644 },
               zoom: 8
           });
-          var geocoder = new google.maps.Geocoder();
-          var infowindow = new google.maps.InfoWindow;
 
+          var geocoder = new google.maps.Geocoder();
+          var reverse = new google.maps.Geocoder();
+          var infowindow = new google.maps.InfoWindow;
+          marker = new google.maps.Marker(
+          	{
+          		position: { lat: -34.397, lng: 150.644 }
+          	});
+          //goi hàm geocode
           document.getElementById('submit').addEventListener('click', function() {
               geocodeAddress(geocoder, map, infowindow);
           });
+
+          //lấy tọa độ khi click chuột
           google.maps.event.addListener(map, 'click', function(event) {
-              placeMarker(event.latLng, geocoder, infowindow);
+              reverseLocation(event.latLng, reverse, infowindow);
           });
       }
 
-      function placeMarker(location, geocoder, infowindow) {
-
-          var marker = new google.maps.Marker({
-              position: location,
-              map: map
-          });
-
-          /*var latlng = {lat: parseFloat(location.lat()), lng: parseFloat(location.lng())};*/
-          geocoder.geocode({ 'location': location }, function(results, status) {
+      function reverseLocation(location, geocoder, infowindow) {
+          geocoder.geocode({'location': location }, function(results, status) {
               if (status === 'OK') {
                   if (results[0]) {
                       map.setZoom(8);
-                      var marker = new google.maps.Marker({
-                          position: location,
-                          map: map
-                      });
+                      marker.setPosition(location);
+                      marker.setMap(map);
                       infowindow.setContent(results[0].formatted_address);
                       infowindow.open(map, marker);
                   } else {
-                      window.alert('No results found');
+                      window.alert('không tìm thấy');
                   }
               } else {
                   window.alert('Geocoder failed due to: ' + status);
@@ -49,13 +49,12 @@
           geocoder.geocode({ 'address': address }, function(results, status) {
               if (status === 'OK') {
                   resultsMap.setCenter(results[0].geometry.location);
-                  marker = new google.maps.Marker({
-                      position: results[0].geometry.location,
-                      map: map
-                  });
+                  
+                  marker.setPosition(results[0].geometry.location);
+                  marker.setMap(map);
                   console.log(results[0]);
                   infowindow.setContent(results[0].formatted_address);
-                  infowindow.open(resultsMap, marker);
+                  infowindow.open(resultsMap, pin);
               } else {
                   alert('không tìm thấy:  ' + status);
               }
